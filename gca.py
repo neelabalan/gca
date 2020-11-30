@@ -9,7 +9,7 @@ url_and_name = namedtuple( 'repoinfo', ['name', 'url'] )
 USER_API_URL = 'https://api.github.com/users/'
 ORGS_API_URL = 'https://api.github.com/orgs/'
 
-def _fetch_user_info( username ):
+def _get_numberofrepos_and_type( username ):
     ''' return user details '''
     response = requests.get( 
         ''.join([ 
@@ -17,16 +17,30 @@ def _fetch_user_info( username ):
             '{}'.format( username ) 
         ])
     )
-    return response.json() if response.status_code == 200 else None
+    return ( 
+        response.json().get( 'public_repos' ), response.json().get( 'type' ) 
+    ) if response.status_code == 200 else ( None, None )
 
-def _get_gitclone_links_with_reponame( username, type_of_acc, page = 1 ):
+def get_gitclone_links_with_reponame( username ):
     ''' returns all the clone links in list '''
-    url_prefix = USER_API_URL if type_of_acc == 'User' else ORGS_API_URL
-    url = ''.join( [ url_prefix, '{}/repos?per_page=100&page={}'.format( username, page )])
-    response = requests.get( url )
-    return [ 
-        url_and_name( name = repo.get( 'name' ), url = repo.get( 'git_url' ) ) for repo in response.json() 
-    ] 
+    number_of_repos, type_of_acc = _get_numberofrepos_and_type( username )
+    if type_of_acc:
+        name_and_links  = list()
+        if number_of_repos > 0:
+            number_of_pages = math.ceil( number_of_repos / 100 )
+            url_prefix      = USER_API_URL + username if type_of_acc == 'User' else ORGS_API_URL + username
+
+            for counter in range( number_of_pages ):
+                url      = ''.join( [ url_prefix, '/repos?per_page=100&page={}'.format( counter + 1 )])
+                response = requests.get( url )
+                name_and_links += [ 
+                    url_and_name( name = repo.get( 'name' ), url = repo.get( 'git_url' ) ) for repo in response.json() 
+                ] 
+            return name_and_links
+        else:
+            print( 'no repository found for the given user' )
+    else:
+        print( 'user not found' )
 
 def main():
     parser = argparse.ArgumentParser()
@@ -43,27 +57,13 @@ def main():
     args = parser.parse_args()
     user = args.user
 
-    user_info = _fetch_user_info( user )
-    if user_info:
-        number_of_repos = user_info.get( 'public_repos' )
-        type_of_acc = user_info.get( 'type' )
-        number_of_pages = math.ceil( number_of_repos / 100 )
-        # setting counter value
-        count = 1 
-        for counter in range( number_of_pages ):
-            name_and_links = _get_gitclone_links_with_reponame( user, type_of_acc, counter + 1 )
-            if number_of_repos > 0:
-                for repo in name_and_links:
-                    # print("({}/{})  {} - {}".format( count, number_of_repos, repo.name, repo.url ))
-                    with yaspin( text = "({}/{}) cloning {}".format( count, number_of_repos, repo.name ), color = 'blue' ) as spinner:
-                        subprocess.run([ 'git', 'clone', repo.url ], stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL )
-                    incrementing
-                    count +=  1 
-            else:
-                print( 'the user has no repository' )
-    else:
-        print( 'could not find the user' )
-
+    name_and_links = get_gitclone_links_with_reponame( username = user )
+    if name_and_links: 
+        total_repos = len( name_and_links )
+        for count, repo in enumerate( name_and_links, start = 1 ):
+            # print("({}/{})  {} - {}".format( count, total_repos, repo.name, repo.url ))
+                with yaspin( text = "({}/{}) cloning {}".format( count, total_repos, repo.name ), color = 'blue' ) as spinner:
+                    subprocess.run([ 'git', 'clone', repo.url ], stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL )
 
 if __name__ == "__main__":
     main()
