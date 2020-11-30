@@ -16,7 +16,10 @@ python3 setup.py install
 ## usage
 
 ```bash
+# user
 gca --user neelabalan
+
+# org
+gca --user microsoft 
 ```
 
-> note: this script does not support cloning organization repos yet
