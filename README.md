@@ -19,6 +19,9 @@ python3 setup.py install
 # user
 gca --user neelabalan
 
+# to not download github gists of the user
+gca --user --ignore-gist neelabalan
+
 # org
 gca --user microsoft 
 ```

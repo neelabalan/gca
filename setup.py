@@ -11,7 +11,8 @@ setup(
     license          = "MIT",
     install_requires = [
         "yaspin>=1.1.0", 
-        "requests>=2.20.0"
+        "requests>=2.20.0",
+        "pytablewriter"
     ],
     py_modules       = ['gca'],
     keywords         = "git clone github",
