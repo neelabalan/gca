@@ -1,4 +1,5 @@
 # gca (git clone all)
+[![codecov](https://codecov.io/gh/neelabalan/gca/branch/main/graph/badge.svg?token=MGFCAJ1UR6)](https://codecov.io/gh/neelabalan/gca)
 
 > simple script to clone all public repositories of a user
 
