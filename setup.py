@@ -19,7 +19,7 @@ setup(
     packages         = find_packages(), 
     entry_points     = {
         "console_scripts": [
-            "gca = gca:main"
+            "gca = gca.gca:main"
         ]
     },
     setup_requires   = ["wheel"],
