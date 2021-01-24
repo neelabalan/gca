@@ -16,7 +16,11 @@ jobs:
           python-version: 3.8
       - name: Generate coverage report
         run: |
+<<<<<<< HEAD
           pip install coverage 
+=======
+          pip install coverage yaspin pytablewriter requests
+>>>>>>> 331681f8bf6a352239f9b3d6245fc5409092249b
           coverage run -m unittest discover
           coverage xml -o coverage.xml
       - name: Upload coverage to Codecov
