@@ -1,6 +1,6 @@
 import unittest
 import os
-from gca.gca import _get_numberof_repos_gists_and_type, write_readme_for_gist
+from gca.gca import _get_numberof_repos_gists_and_type, write_readme_for_gist, get_gitclone_info
 from unittest import mock
 from collections import namedtuple
 
@@ -45,9 +45,10 @@ class GcaTests(unittest.TestCase):
         self.assertTrue(os.path.isfile('GIST-README.md'))
         os.remove('GIST-README.md')
 
-
-    def test_get_gitclone_info(self):
-        pass
+    # @mock.path('gca.gca._get_numberof_repos_gists_and_type')
+    # def test_get_gitclone_info(self, mock_get):
+    #     # mock_get.return_value = (1, 1, 'User')
+    #     pass
 
 
 if __name__ == '__main__':
