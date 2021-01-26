@@ -1,31 +1,43 @@
 import unittest
 import os
-from gca.gca import _get_numberof_repos_gists_and_type, write_readme_for_gist, get_gitclone_info
 from unittest import mock
 from collections import namedtuple
 
-gist_info = namedtuple('gistinfo', ['id', 'files', 'description', 'url'])
+from gca.gca import (
+    get_user_info,
+    write_readme_for_gist, 
+    get_gitclone_info,
+    get_gist_info,
+    get_repo_info,
+    repo_info,
+    gist_info,
+    user_info
+)
 
 
 class GcaTests(unittest.TestCase):
     @mock.patch('gca.gca.requests.get')
-    def test_get_numberof_repos_gists_and_type(self, mock_get):
+    def test_get_user_info(self, mock_get):
         mock_get.return_value.json.return_value = {
             'public_repos': 1,
             'public_gists': 1,
-            'type': 'org'
+            'type': 'Org'
         }
         mock_get.return_value.status_code = 200
         self.assertEqual(
-            _get_numberof_repos_gists_and_type('existing_user'),
-            (1, 1, 'org')
+            get_user_info('user'),
+            user_info(
+                username='user', 
+                public_repos = 1, 
+                public_gists = 1,
+                type = 'Org'
+            )
         )
-
         # no user test
         mock_get.return_value.status_code = 404
         self.assertEqual(
-            _get_numberof_repos_gists_and_type('existing_user'),
-            (None, None)
+            get_user_info('nosuchuser'),
+            None
         )
 
     def test_write_readme_for_gist(self):
@@ -45,10 +57,53 @@ class GcaTests(unittest.TestCase):
         self.assertTrue(os.path.isfile('GIST-README.md'))
         os.remove('GIST-README.md')
 
-    # @mock.path('gca.gca._get_numberof_repos_gists_and_type')
-    # def test_get_gitclone_info(self, mock_get):
-    #     # mock_get.return_value = (1, 1, 'User')
-    #     pass
+    @mock.patch('gca.gca.requests.get')
+    def test_get_repo_info(self, mock_get):
+        mock_get.return_value.json.return_value = [{
+            'name': 'AnatomyPark',
+            'git_url': 'git@github.com:xenonbloom/AnatomyPark'
+        }]
+        repos = get_repo_info(
+            user_info( 
+                username = 'xenonbloom', 
+                public_repos = 1,
+                public_gists = 1,
+                type = 'User'
+            )
+        )
+        self.assertEqual(
+            repos, 
+            [repo_info(name='AnatomyPark', url='git@github.com:xenonbloom/AnatomyPark')]
+        )
+
+    @mock.patch('gca.gca.requests.get')
+    def test_get_gist_info(self, mock_get):
+        mock_get.return_value.json.return_value = [{
+            'id': 'c137',
+            'files': {'topsecret.py':1},
+            'description': 'schematics for ionic defibulizer',
+            'git_pull_url': 'git@github.com:xenonbloom/AnatomyPark'
+        }]
+
+        gists = get_gist_info(
+            user_info( 
+                username = 'xenonbloom', 
+                public_repos = 1,
+                public_gists = 1,
+                type = 'User'
+            )
+        )
+        self.assertEqual(
+            gists, 
+            [
+                gist_info(
+                    id          = 'c137',
+                    files       = ['topsecret.py'],
+                    description = 'schematics for ionic defibulizer',
+                    url         = 'git@github.com:xenonbloom/AnatomyPark'
+                )
+            ]
+        )
 
 
 if __name__ == '__main__':

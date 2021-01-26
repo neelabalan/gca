@@ -10,12 +10,13 @@ import math
 
 repo_info = namedtuple('repoinfo', ['name', 'url'])
 gist_info = namedtuple('gistinfo', ['id', 'files', 'description', 'url'])
+user_info = namedtuple('userinfo', ['username', 'public_repos', 'public_gists', 'type'])
 
 USER_API_URL = 'https://api.github.com/users/'
 ORGS_API_URL = 'https://api.github.com/orgs/'
 
 
-def _get_numberof_repos_gists_and_type(username):
+def get_user_info(username):
     ''' return user details '''
     response = requests.get(
         ''.join([
@@ -23,11 +24,12 @@ def _get_numberof_repos_gists_and_type(username):
             '{}'.format(username)
         ])
     )
-    return (
-        response.json().get('public_repos'),
-        response.json().get('public_gists'),
-        response.json().get('type'),
-    ) if response.status_code == 200 else (None, None)
+    return user_info(
+        username     = username,
+        public_repos = response.json().get('public_repos'),
+        public_gists = response.json().get('public_gists'),
+        type         = response.json().get('type')
+    ) if response.status_code == 200 else None
 
 
 def write_readme_for_gist(gists):
@@ -45,64 +47,62 @@ def write_readme_for_gist(gists):
     writer.dump('GIST-README.md')
 
 
-def get_repo_info(username, number_of_repos):
+def get_repo_info(user_info):
     ''' returns the name of the repo and url '''
-    number_of_pages = math.ceil(number_of_repos / 100)
-    repo_info = dict(repos = list())
+    number_of_pages = math.ceil(user_info.public_repos / 100)
+    repositories = list()
 
     url_prefix = USER_API_URL + \
-        username if type_of_acc == 'User' else ORGS_API_URL + username
+        user_info.username if user_info.type == 'User' else ORGS_API_URL + user_info.username
 
     for counter in range(number_of_pages):
         url = ''.join(
             [url_prefix, '/repos?per_page=100&page={}'.format(counter + 1)])
         response = requests.get(url)
-        repo_info['repos'] += [
+        repositories += [
             repo_info(
-                name=repo.get('name'),
-                url=repo.get('git_url')
+                name = repo.get('name'),
+                url  = repo.get('git_url')
             ) for repo in response.json()
         ]
-    return repo_info
+    return repositories 
 
 
-def get_gist_info(username, number_of_gists):
+def get_gist_info(user_info):
     ''' returns the name and url of user gists '''
-    number_of_pages = math.ceil(number_of_gists / 100)
-    gist_info = dict(gists = list())
+    number_of_pages = math.ceil(user_info.public_gists / 100)
+    gists = list()
 
-    url_prefix = USER_API_URL + username
+    url_prefix = USER_API_URL + user_info.username
 
     for counter in range(number_of_pages):
         url = ''.join(
             [url_prefix, '/gists?per_page=100&page={}'.format(counter + 1)])
         response = requests.get(url)
-        gist_info['gists'] += [
+        gists += [
             gist_info(
-                id=gist.get('id'),
-                files=list(gist.get('files').keys()),
-                description=gist.get('description'),
-                url=gist.get('git_pull_url'),
+                id          = gist.get('id'),
+                files       = list(gist.get('files').keys()),
+                description = gist.get('description'),
+                url         = gist.get('git_pull_url'),
             ) for gist in response.json()
         ]
-
-    return gist_info
+    return gists 
 
 
 def get_gitclone_info(username):
     ''' returns all the clone links in list '''
-    number_of_repos, number_of_gists, type_of_acc = _get_numberof_repos_gists_and_type(
-        username)
+    user_info = get_user_info(username)
     if type_of_acc:
         if number_of_repos > 0:
-            repos = get_repo_info(username, number_of_repos)
+            repos = get_repo_info(user_info)
         else:
             print('no repositories found in user\'s github account')
         if number_of_gists > 0:
-            gists = get_gist_info(username, number_of_gists)
+            gists = get_gist_info(user_info)
         else:
             print('no gists found in user\'s github account')
-        return { **repos, **gists }
+        return { 'repos': repos, 'gists': gists }
     else:
         print('user not found')
 
