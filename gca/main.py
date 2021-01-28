@@ -1,7 +1,7 @@
 import argparse
 import importlib
 
-from utils import get_user_response, execute_funcs
+from gca.utils import get_user_response, execute_funcs
 
 def main():
     parser = argparse.ArgumentParser()

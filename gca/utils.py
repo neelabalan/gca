@@ -1,7 +1,7 @@
 import requests
 import importlib
 
-from urls import USER_API_URL 
+from gca.urls import USER_API_URL 
 
 def get_user_response( username ):
     ''' return user details '''

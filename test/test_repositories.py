@@ -14,7 +14,9 @@ class TestRepositories( unittest.TestCase ):
             'repo_name': 'AnatomyPark'
         }]
         self.assertEqual(
-            fetch_responses( { 'name': 'xenonbloom', 'public_repos': 1, 'type': 'User' } ), 
+            fetch_responses({
+                'repositories': { 'name': 'xenonbloom', 'public_repos': 1, 'type': 'User' } 
+            }), 
             [{
                 'ssh_url': 'git@github.com:xenonbloom/AnatomyPark',
                 'repo_name': 'AnatomyPark'
@@ -22,10 +24,12 @@ class TestRepositories( unittest.TestCase ):
         )
 
     def test_get_clone_urls( self ):
-        responses = [
-            { 'name': 'MeeseeksBox', 'ssh_url': 'git@github.com:rick/meeseeksbox', 'extrafield': 'golf' },
-            { 'name': 'vindicator', 'ssh_url': 'git@github.com:rick/vindicator', 'extrafield': 'kinesis' }
-        ]
+        responses = { 
+            'repositories':[
+                { 'name': 'MeeseeksBox', 'ssh_url': 'git@github.com:rick/meeseeksbox', 'extrafield': 'golf' },
+                { 'name': 'vindicator', 'ssh_url': 'git@github.com:rick/vindicator', 'extrafield': 'kinesis' }
+            ]
+        }
         self.assertEqual(
             get_clone_urls( responses ),
             [
@@ -37,5 +41,4 @@ class TestRepositories( unittest.TestCase ):
     def test_dump_summary( self ):
         pass
 
-if __name__ == '__main__':
-    unittest.main()
+

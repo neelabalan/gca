@@ -1,6 +1,6 @@
 import requests
 import math
-from urls import USER_API_URL 
+from gca.urls import USER_API_URL 
 
 def fetch_responses( response ):
     ''' returns the name and url of user gists '''

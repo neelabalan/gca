@@ -3,7 +3,7 @@ import math
 import subprocess
 from collections import namedtuple
 
-from urls import USER_API_URL, ORG_API_URL
+from gca.urls import USER_API_URL, ORG_API_URL
 from yaspin import yaspin
 
 def fetch_responses( response ):
@@ -38,7 +38,7 @@ def dump_summary( filename = 'repositories.md' ):
 def execute_cloning( url_map ):
     repo_urls = url_map.get( 'repositories' )
     if repo_urls: 
-        total_repos = len( repo_urls ) )
+        total_repos = len( repo_urls ) 
         print('cloning repositories...')
         for count, repo in enumerate( repo_urls, start=1 ):
             # print("({}/{})  {} - {}".format( count, total_repos, repo[0], repo[1]))

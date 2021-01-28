@@ -14,7 +14,9 @@ class TestGists( unittest.TestCase ):
         }]
 
         self.assertEqual(
-            fetch_responses( { 'name': 'Rocky', 'public_gists': 1 } ), 
+            fetch_responses({
+                'gists': { 'name': 'Rocky', 'public_gists': 1 } 
+            }), 
             [{
                 'git_pull_url': 'https://gist.github.com/123456789.git',
                 'id': '123456789'
@@ -22,10 +24,13 @@ class TestGists( unittest.TestCase ):
         )
 
     def test_get_clone_urls( self ):
-        responses = [
-            { 'id': '81726498', 'git_pull_url': 'https://gist.github.com/81726498.git', 'extrafield': 'golf' },
-            { 'id': '98734598', 'git_pull_url': 'https://gist.github.com/98734598.git', 'extrafield': 'kinesis' }
-        ]
+        responses = {
+            'gists': [
+                { 'id': '81726498', 'git_pull_url': 'https://gist.github.com/81726498.git', 'extrafield': 'golf' },
+                { 'id': '98734598', 'git_pull_url': 'https://gist.github.com/98734598.git', 'extrafield': 'kinesis' }
+            ]
+        }
+
         self.assertEqual(
             get_clone_urls( responses ),
             [
@@ -37,6 +42,3 @@ class TestGists( unittest.TestCase ):
 
     def test_dump_summary( self ):
         pass
-
-if __name__ == '__main__':
-    unittest.main()
