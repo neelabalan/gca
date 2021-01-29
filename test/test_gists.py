@@ -2,7 +2,7 @@ import unittest
 import os
 from unittest import mock
 
-from gca.gists import fetch_responses, get_clone_urls
+from gca.gists import fetch_responses, get_clone_urls, execute_cloning
 
 class TestGists( unittest.TestCase ):
 
@@ -39,6 +39,20 @@ class TestGists( unittest.TestCase ):
             ]
         )
 
+    @mock.patch( 'gca.gists.subprocess' )
+    def test_execute_cloning( self, mock_subp ):
+        url_map = {
+            'gists':[
+                ('gist1', 'https://gist.github.com/gist1'), 
+                ('gist2', 'https://gist.github.com/gist2')
+            ]
+        }
+        execute_cloning( url_map )
+        mock_subp.run.assert_any_call(
+            args   = ['git', 'clone', 'https://gist.github.com/gist2'],
+            stdout = mock_subp.DEVNULL,
+            stderr = mock_subp.DEVNULL
+        )
 
     def test_dump_summary( self ):
         pass

@@ -2,7 +2,7 @@ import unittest
 import os
 from unittest import mock
 
-from gca.repositories import fetch_responses, get_clone_urls
+from gca.repositories import fetch_responses, get_clone_urls, execute_cloning
 
 
 class TestRepositories( unittest.TestCase ):
@@ -37,6 +37,22 @@ class TestRepositories( unittest.TestCase ):
                 ( 'vindicator', 'git@github.com:rick/vindicator' )
             ]
         )
+
+    @mock.patch( 'gca.repositories.subprocess' )
+    def test_execute_cloning( self, mock_subp ):
+        url_map = {
+            'repositories':[
+                ('repo1', 'git@github.com:user1/repo1'), 
+                ('repo2', 'git@github.com:user2/repo2')
+            ]
+        }
+        execute_cloning( url_map )
+        mock_subp.run.assert_any_call(
+            args   = ['git', 'clone', 'git@github.com:user1/repo1'],
+            stdout = mock_subp.DEVNULL,
+            stderr = mock_subp.DEVNULL
+        )
+
 
     def test_dump_summary( self ):
         pass

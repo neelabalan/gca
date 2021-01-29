@@ -8,12 +8,12 @@ def main():
     parser.add_argument(
         '-u',
         '--user',
-        help='provide unique github user as arguement',
+        help = 'provide unique github user as arguement',
     )
     parser.add_argument(
         '-i',
         '--ignore-gist',
-        help='ignore the gist, download only the repos',
+        help = 'ignore the gist, download only the repos',
     )
 
     args = parser.parse_args()

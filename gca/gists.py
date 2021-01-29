@@ -1,5 +1,8 @@
 import requests
 import math
+import subprocess
+
+from yaspin import yaspin
 from gca.urls import USER_API_URL 
 
 def fetch_responses( response ):
