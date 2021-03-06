@@ -3,6 +3,7 @@ import math
 import subprocess
 
 from yaspin import yaspin
+
 from gca.urls import USER_API_URL 
 
 def fetch_responses( response ):
@@ -25,14 +26,14 @@ def fetch_responses( response ):
 
 def get_clone_urls( responses ):
     return [ 
-        ( gist.get( 'id' ), gist.get( 'git_pull_url' ) ) for gist in responses.get( 'gists' )
+        ( gist.get( 'id' ), gist.get( 'git_pull_url' ) ) for gist in responses.get( 'gca.gists' )
     ]
 
 def dump_summary( filename = 'gists.md' ):
     pass
 
 def execute_cloning( url_map ):
-    gist_urls = url_map.get( 'gists' )
+    gist_urls = url_map.get( 'gca.gists' )
     if gist_urls: 
         total_gist = len( url_map.get( 'gists' ) )
         print('cloning gists...')

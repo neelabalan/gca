@@ -4,7 +4,9 @@ import subprocess
 from collections import namedtuple
 
 from gca.urls import USER_API_URL, ORG_API_URL
-from yaspin import yaspin
+
+from rich.table import Column
+from rich.progress import Progress, BarColumn, TimeElapsedColumn
 
 def fetch_responses( response ):
     ''' returns the name of the repo and url '''
@@ -29,22 +31,28 @@ def fetch_responses( response ):
 
 def get_clone_urls( responses ):
     return  [
-        ( repo.get('name'), repo.get('clone_url') ) for repo in responses.get( 'repositories' )
+        ( repo.get('name'), repo.get('clone_url') ) for repo in responses.get( 'gca.repositories' )
     ]
 
 def dump_summary( filename = 'repositories.md' ):
     pass
 
 def execute_cloning( url_map ):
-    repo_urls = url_map.get( 'repositories' )
+    repo_urls = url_map.get( 'gca.repositories' )
     if repo_urls: 
         total_repos = len( repo_urls ) 
-        print('cloning repositories...')
-        for count, repo in enumerate( repo_urls, start=1 ):
-            # print("({}/{})  {} - {}".format( count, total_repos, repo[0], repo[1]))
-            with yaspin(text="({}/{}) cloning {}".format( count, total_repos, repo[ 0 ] ), color = 'blue' ) as spinner:
+        with Progress(
+            BarColumn(bar_width=None, complete_style='blue'), 
+            "[progress.percentage]{task.percentage:>3.0f}%",
+            TimeElapsedColumn(), 
+            expand=True
+        ) as progress:
+            task = progress.add_task("[blue]Cloning...", total=total_repos)
+            for count, repo in enumerate( repo_urls, start=1 ):
+                progress.update(task, advance=1)
                 subprocess.run(
-                    args=[ 'git', 'clone', repo[ 1 ] ],
+                    args=['git', 'clone', repo[1]],
                     stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
                 )
+                progress.print('[green]✓[/green] '+repo[0])

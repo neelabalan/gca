@@ -18,7 +18,7 @@ def main():
 
     args = parser.parse_args()
     user = args.user
-    modlist    = [ 'repositories', 'gists' ] if not args.ignore_gist else [ 'repositories' ]
+    modlist    = [ 'gca.repositories', 'gca.gists' ] if not args.ignore_gist else [ 'gca.repositories' ]
     response   = get_user_response( username = user )
     result     = execute_funcs( modlist, 'fetch_responses', response = response )
     clone_urls = execute_funcs( modlist, 'get_clone_urls', responses = result )
