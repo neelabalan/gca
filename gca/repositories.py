@@ -29,7 +29,7 @@ def fetch_responses( response ):
 
 def get_clone_urls( responses ):
     return  [
-        ( repo.get('name'), repo.get('ssh_url') ) for repo in responses.get( 'repositories' )
+        ( repo.get('name'), repo.get('clone_url') ) for repo in responses.get( 'repositories' )
     ]
 
 def dump_summary( filename = 'repositories.md' ):

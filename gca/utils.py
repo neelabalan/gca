@@ -17,7 +17,7 @@ def get_user_response( username ):
         'repositories': {
             'public_repos': json.get( 'public_repos' ),
             'type': json.get( 'type' ),
-            'name': json.get( 'name' )
+            'name': json.get( 'login' )
         },
         'gists': {
             'public_gists': json.get( 'public_gists' ),
