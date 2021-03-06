@@ -1,10 +1,20 @@
 from setuptools import setup, find_packages
+from codecs import open
+from inspect import getsource
+from os.path import abspath, dirname, join
+
+
+here = abspath(dirname(getsource(lambda: 0)))
+
+with open(join(here, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
 
 setup(
-    name             = "gca",
-    version          = "0.2.0",
+    name             = "ghub_clone",
+    version          = "0.2.2",
     url              = "https://github.com/neelabalan/gca",
-    long_description = open('README.md').read(),
+    long_description = long_description, 
+    long_description_content_type="text/markdown",
     author           = "neelabalan",
     author_email     = "neelabalan.n@gmail.com",
     python_requires  = ">=3.8",

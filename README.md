@@ -5,10 +5,14 @@
 
 
 
+![gif](https://i.imgur.com/3UJQech.gif)
+
+
+
 ## installation
 
 ```bash
-python3 setup.py install
+pip install ghub_clone
 # git needs to be in system path
 ```
 

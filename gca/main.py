@@ -13,6 +13,7 @@ def main():
     parser.add_argument(
         '-i',
         '--ignore-gist',
+        action='store_true',
         help = 'ignore the gist, download only the repos',
     )
 

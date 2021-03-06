@@ -2,7 +2,8 @@ import requests
 import math
 import subprocess
 
-from yaspin import yaspin
+from rich.table import Column
+from rich.progress import Progress, BarColumn, TimeElapsedColumn
 
 from gca.urls import USER_API_URL 
 
@@ -35,14 +36,19 @@ def dump_summary( filename = 'gists.md' ):
 def execute_cloning( url_map ):
     gist_urls = url_map.get( 'gca.gists' )
     if gist_urls: 
-        total_gist = len( url_map.get( 'gists' ) )
-        print('cloning gists...')
-        for count, gist in enumerate( gist_urls, start=1 ):
-            with yaspin(text="({}/{}) cloning {}".format( count, total_gist, gist[ 0 ] ), color = 'blue' ) as spinner:
+        total_gist = len( gist_urls ) 
+        with Progress(
+            BarColumn(bar_width=None, complete_style='blue'), 
+            "[progress.percentage]{task.percentage:>3.0f}%",
+            TimeElapsedColumn(), 
+            expand=True
+        ) as progress:
+            task = progress.add_task("[blue]Cloning...", total=total_gist)
+            for count, repo in enumerate( gist_urls, start=1 ):
+                progress.update(task, advance=1)
                 subprocess.run(
-                    args=[ 'git', 'clone', gist[ 1 ] ],
+                    args=['git', 'clone', repo[1]],
                     stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
                 )
-
-
+                progress.print('[green]✓[/green] '+repo[0])
