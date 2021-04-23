@@ -25,9 +25,9 @@ class TestRepositories( unittest.TestCase ):
 
     def test_get_clone_urls( self ):
         responses = { 
-            'repositories':[
-                { 'name': 'MeeseeksBox', 'ssh_url': 'git@github.com:rick/meeseeksbox', 'extrafield': 'golf' },
-                { 'name': 'vindicator', 'ssh_url': 'git@github.com:rick/vindicator', 'extrafield': 'kinesis' }
+            'gca.repositories':[
+                { 'name': 'MeeseeksBox', 'clone_url': 'git@github.com:rick/meeseeksbox', 'extrafield': 'golf' },
+                { 'name': 'vindicator', 'clone_url': 'git@github.com:rick/vindicator', 'extrafield': 'kinesis' }
             ]
         }
         self.assertEqual(
@@ -41,7 +41,7 @@ class TestRepositories( unittest.TestCase ):
     @mock.patch( 'gca.repositories.subprocess' )
     def test_execute_cloning( self, mock_subp ):
         url_map = {
-            'repositories':[
+            'gca.repositories':[
                 ('repo1', 'git@github.com:user1/repo1'), 
                 ('repo2', 'git@github.com:user2/repo2')
             ]

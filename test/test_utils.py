@@ -11,7 +11,8 @@ class TestUtils( unittest.TestCase ):
             'public_gists': 1,
             'type': 'Org',
             'public_repos': 10,
-            'name': 'bloom'
+            'name': 'bloom',
+            'login': 'bloom'
         }
 
         mock_get.return_value.status_code = 200

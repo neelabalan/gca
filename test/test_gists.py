@@ -25,7 +25,7 @@ class TestGists( unittest.TestCase ):
 
     def test_get_clone_urls( self ):
         responses = {
-            'gists': [
+            'gca.gists': [
                 { 'id': '81726498', 'git_pull_url': 'https://gist.github.com/81726498.git', 'extrafield': 'golf' },
                 { 'id': '98734598', 'git_pull_url': 'https://gist.github.com/98734598.git', 'extrafield': 'kinesis' }
             ]
@@ -42,7 +42,7 @@ class TestGists( unittest.TestCase ):
     @mock.patch( 'gca.gists.subprocess' )
     def test_execute_cloning( self, mock_subp ):
         url_map = {
-            'gists':[
+            'gca.gists':[
                 ('gist1', 'https://gist.github.com/gist1'), 
                 ('gist2', 'https://gist.github.com/gist2')
             ]
