@@ -20,7 +20,7 @@ def fetch_responses( response ):
         number_of_pages = math.ceil( number_of_public_repos / 100 )
 
         url_prefix = USER_API_URL + \
-            username if acctype == 'User' else ORGS_API_URL + username
+            username if acctype == 'User' else ORG_API_URL + username
 
         for counter in range( number_of_pages ):
             url = ''.join(
