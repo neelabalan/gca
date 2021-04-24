@@ -1,6 +1,6 @@
 # gca (github clone all)
 [![codecov](https://codecov.io/gh/neelabalan/gca/branch/main/graph/badge.svg?token=MGFCAJ1UR6)](https://codecov.io/gh/neelabalan/gca)
-
+[![PyPI version](https://badge.fury.io/py/ghub-clone.svg)](https://badge.fury.io/py/ghub-clone)
 > simple script to clone all public repositories of a user
 
 
