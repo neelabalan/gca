@@ -1,34 +1,35 @@
 import argparse
-import importlib
+import subprocess
 import requests
-from gca.urls import USER_API_URL 
+import sys
+
+from rich.table import Column
+from rich.progress import Progress, BarColumn, TimeElapsedColumn
+
 USER_API_URL = 'https://api.github.com/users/'
 ORG_API_URL = 'https://api.github.com/orgs/'
 
 
-
-from gca.utils import get_user_response, execute_funcs
 def get_user_response( username ):
     ''' return user details '''
     try:
-        response = requests.get( ''.join( [ USER_API_URL, '{}'.format( username ) ] ) )
+        response = requests.get(
+            ''.join([USER_API_URL, username])
+        )
         response.raise_for_status()
     except requests.exceptions.RequestException as err:
-        print( 'no such user exists' )
+        print('Could not get proper response')
         sys.exit( err )
     
-    json = response.json()
+    user_response = response.json()
     return {
-        'repositories': {
-            'public_repos': json.get( 'public_repos' ),
-            'type': json.get( 'type' ),
-            'name': json.get( 'login' )
-        },
-        'gists': {
-            'public_gists': json.get( 'public_gists' ),
-            'name': json.get( 'name' )
-        }
-    } if response.status_code == 200 else None
+        'public_repos': user_response.get( 'public_repos' ),
+        'user_type'   : user_response.get( 'type' ),
+        'name'        : user_response.get( 'login' ),
+        'public_gists': user_response.get( 'public_gists' ),
+        'name'        : user_response.get( 'name' )
+    }
+
 
 def execute_cloning( url_map ):
     repo_urls = url_map.get( 'gca.repositories' )

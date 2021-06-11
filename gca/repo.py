@@ -3,11 +3,6 @@ import math
 import subprocess
 from collections import namedtuple
 
-from gca.urls import USER_API_URL, ORG_API_URL
-
-from rich.table import Column
-from rich.progress import Progress, BarColumn, TimeElapsedColumn
-
 
 def fetch_responses( response ):
     ''' returns the name of the repo and url '''
@@ -30,7 +25,7 @@ def fetch_responses( response ):
             responses +=  requests.get( url ).json()
     return responses 
 
-def get_clone_urls( responses ):
+def get_clone_urls(username, url_type):
     return  [
         ( repo.get('name'), repo.get('clone_url') ) for repo in responses.get( 'gca.repositories' )
     ]
