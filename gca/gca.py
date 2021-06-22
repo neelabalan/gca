@@ -1,6 +1,7 @@
 import argparse
 import subprocess
 import requests
+import math
 import sys
 
 from rich.table import Column
@@ -9,6 +10,56 @@ from rich.progress import Progress, BarColumn, TimeElapsedColumn
 USER_API_URL = 'https://api.github.com/users/'
 ORG_API_URL = 'https://api.github.com/orgs/'
 
+
+def fetch_repo_responses( response ):
+    ''' returns the name of the repo and url '''
+    user = response.get( 'repositories' )
+    number_of_public_repos = user.get( 'public_repos' )
+    acctype      = user.get( 'type' )
+    username     = user.get( 'name' )
+    responses    = list()
+
+    if number_of_public_repos > 0:
+        number_of_pages = math.ceil( number_of_public_repos / 100 )
+
+        url_prefix = USER_API_URL + \
+            username if acctype == 'User' else ORG_API_URL + username
+
+        for counter in range( number_of_pages ):
+            url = ''.join(
+                [ url_prefix, '/repos?per_page=100&page={}'.format( counter + 1 ) ]
+            )
+            responses +=  requests.get( url ).json()
+    return responses 
+
+def get_repo_clone_urls(username, url_type):
+    return  [
+        ( repo.get('name'), repo.get('clone_url') ) for repo in responses.get( 'gca.repositories' )
+    ]
+
+
+def fetch_gist_responses( response ):
+    ''' returns the name and url of user gists '''
+    user = response.get( 'gists' )
+    public_gists    = user.get( 'public_gists' )
+    username        = user.get( 'name' )
+    responses       = list()
+
+    if public_gists:
+        number_of_pages = math.ceil( public_gists / 100 )
+        url_prefix      = USER_API_URL + username
+
+        for counter in range( number_of_pages ):
+            url = ''.join(
+                [ url_prefix, '/gists?per_page=100&page={}'.format( counter + 1 ) ]
+            )
+            responses += requests.get( url ).json()
+    return responses
+
+def get_gist_clone_urls( responses ):
+    return [ 
+        ( gist.get( 'id' ), gist.get( 'git_pull_url' ) ) for gist in responses.get( 'gca.gists' )
+    ]
 
 def get_user_response( username ):
     ''' return user details '''
