@@ -1,6 +1,5 @@
-from .test_gists import TestGists
-from .test_repositories import TestRepositories
-from .test_utils import TestUtils
+import unittest
+from .test_gca import TestGists
 
 if __name__ == '__main__':
     unittest.main()
