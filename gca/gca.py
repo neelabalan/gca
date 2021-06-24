@@ -9,7 +9,8 @@ from rich.progress import Progress, BarColumn, TimeElapsedColumn
 
 USER_API_URL = 'https://api.github.com/users/'
 ORG_API_URL = 'https://api.github.com/orgs/'
-
+bar_column =  BarColumn(bar_width=None, complete_style='blue')
+progress_console = "[progress.percentage]{task.percentage:>3.0f}%"
 
 def fetch_repo_response(response):
     '''returns the name of the repo and url'''
@@ -32,18 +33,17 @@ def fetch_repo_response(response):
     return responses
 
 
-def get_clone_urls(repo=True, gist=False, url_type='http'):
+def get_clone_urls(response, url_type='http') -> dict:
     clone_urls = list()
-    if repo:
-        clone_urls = [
-            (repo.get('name'), repo.get('clone_url'))
-            for repo in responses.get('gca.repositories')
-        ]
-    if gist:
-        clone_urls += [
-            (gist.get('id'), gist.get('git_pull_url'))
-            for gist in responses.get('gca.gists')
-        ]
+    if response.get('type') == 'repo':
+        clone_urls = {
+            response.get('name'): response.get('clone_url')  for repo in response.get('gca.repositories')
+        }
+    if 'gist' in response.get('type'):
+        clone_urls.update({
+            gist.get('id'): gist.get('git_pull_url') for gist in response.get('gca.gists')
+        }) 
+    return clone_urls
 
 
 def fetch_gist_response(user):
@@ -71,25 +71,14 @@ def get_user_response(username):
     except requests.exceptions.RequestException as err:
         print('Could not get proper response')
         sys.exit(err)
-
-    user_response = response.json()
-    return {
-        'total_repo': user_response.get('public_repos'),
-        'total_gist': user_response.get('public_gists'),
-        'user_type': user_response.get('type'),
-    }
+    finally:
+        return response.json()
 
 
 def execute_cloning(url_list: dict):
     if not url_list:
         raise RuntimeError('No URL provided for cloning')
-
-    with Progress(
-        BarColumn(bar_width=None, complete_style='blue'),
-        "[progress.percentage]{task.percentage:>3.0f}%",
-        TimeElapsedColumn(),
-        expand=True,
-    ) as progress:
+    with Progress(TimeElapsedColumn(), columns=bar_column, console=progress_console, expand=True) as progress:
         task = progress.add_task("[blue]Cloning...", total=len(url_list))
         for count, repo in enumerate(url_list, start=1):
             progress.update(task, advance=1)
@@ -101,9 +90,29 @@ def execute_cloning(url_list: dict):
             progress.print('[green]✓[/green] ' + repo[0])
 
 
-def run():
-    pass
+def run(user, ssh, gist):
+    response = get_user_response(user)
+    total_repo, total_gist, usertype = (
+        response.get('public_repos'),
+        response.get('public_gists'),
+        response.get('type')
+    )
+    gh_response = dict()
+    gh_response['repo'] = fetch_repo_response(user)
+    if gist:
+        gh_response['gist'] = fetch_gist_response(user)
+    clone_urls = get_clone_urls(gh_response)
+    execute_cloning(clone_urls)
+
+
+
+@click.command
+@click.option('--user', required=True, type=str)
+@click.option('--ssh', type=str)
+@click.option('--gist', type=bool)
+def main(user, ssh, gist):
+    run(user, ssh, gist) 
 
 
 if __name__ == "__main__":
-    run()
+    main()
