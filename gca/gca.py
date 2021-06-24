@@ -1,6 +1,5 @@
 import subprocess
 import requests
-import math
 import sys
 import click
 
@@ -12,24 +11,24 @@ ORG_API_URL = 'https://api.github.com/orgs/'
 bar_column =  BarColumn(bar_width=None, complete_style='blue')
 progress_console = "[progress.percentage]{task.percentage:>3.0f}%"
 
-def fetch_repo_response(response):
-    '''returns the name of the repo and url'''
-    user = response.get('repositories')
-    number_of_public_repos = user.get('public_repos')
-    acctype = user.get('type')
-    username = user.get('name')
-    responses = list()
+def construct_url(user, org_type, api='repo'):
+    url_prefix = USER_API_URL + user if org_type == 'User' else ORG_API_URL + user 
+    if api=='repo': 
+        return url_prefix + '/repos?per_page=100&page={page}'
+    else:
+        return url_prefix + '/gists?per_page=100&page={page}'
 
-    if number_of_public_repos > 0:
-        number_of_pages = math.ceil(number_of_public_repos / 100)
-        url_prefix = (
-            USER_API_URL + username if acctype == 'User' else ORG_API_URL + username
-        )
-        for counter in range(number_of_pages):
-            url = ''.join(
-                [url_prefix, '/repos?per_page=100&page={}'.format(counter + 1)]
-            )
-            responses += requests.get(url).json()
+def fetch_response(url):
+    '''fetch all repo response by iterating the pages'''
+    responses = list()
+    page = 0
+    while True:
+        response = requests.get(url.format(page=page))
+        page += 1
+        if response:
+            responses += response
+        else:
+            break
     return responses
 
 
@@ -44,23 +43,6 @@ def get_clone_urls(response, url_type='http') -> dict:
             gist.get('id'): gist.get('git_pull_url') for gist in response.get('gca.gists')
         }) 
     return clone_urls
-
-
-def fetch_gist_response(user):
-    '''returns the name and url of user gists'''
-    user = response.get('gists')
-    public_gists = user.get('public_gists')
-    username = user.get('name')
-    responses = list()
-    if public_gists:
-        number_of_pages = math.ceil(public_gists / 100)
-        url_prefix = USER_API_URL + username
-        for counter in range(number_of_pages):
-            url = ''.join(
-                [url_prefix, '/gists?per_page=100&page={}'.format(counter + 1)]
-            )
-            responses += requests.get(url).json()
-    return responses
 
 
 def get_user_response(username):
@@ -98,12 +80,11 @@ def run(user, ssh, gist):
         response.get('type')
     )
     gh_response = dict()
-    gh_response['repo'] = fetch_repo_response(user)
+    gh_response['repo'] = fetch_response(url = construct_url(user, usertype, 'repo'))
     if gist:
-        gh_response['gist'] = fetch_gist_response(user)
+        gh_response['gist'] = fetch_response(url = construct_url(user, usertype, 'gist'))
     clone_urls = get_clone_urls(gh_response)
     execute_cloning(clone_urls)
-
 
 
 @click.command
