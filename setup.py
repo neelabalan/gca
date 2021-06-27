@@ -11,7 +11,7 @@ with open(join(here, "README.md"), encoding="utf-8") as f:
 
 setup(
     name             = "ghub_clone",
-    version          = "0.2.3",
+    version          = "0.3.0",
     url              = "https://github.com/neelabalan/gca",
     long_description = long_description, 
     long_description_content_type="text/markdown",
@@ -25,10 +25,9 @@ setup(
     ],
     keywords         = "git clone github",
     packages         = find_packages(exclude=["*.test", "*.test.*", "test.*", "test"]), 
+    scripts          =['gca.py'],
     entry_points     = {
-        "console_scripts": [
-            "gca = gca.main:main"
-        ]
+        "console_scripts": [ "gca = gca:main" ]
     },
     setup_requires   = ["wheel"],
 )

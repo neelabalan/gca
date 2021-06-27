@@ -53,7 +53,7 @@ def get_user_response(username: str) -> Dict:
         response.raise_for_status()
     except requests.exceptions.RequestException as err:
         print('Could not get proper response')
-        print('[red]{}[/red]'.format(response.json()))
+        print('[red]{}[/red]'.format(err))
         sys.exit()
     finally:
         return response.json()
